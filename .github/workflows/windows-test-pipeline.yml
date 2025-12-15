@@ -1,0 +1,36 @@
+name: Windows Test Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run PowerShell build script
+        shell: powershell
+        run: |
+          .\scripts\hello.ps1
+
+      - name: Verify build output
+        shell: powershell
+        run: |
+          if (!(Test-Path build_output.txt)) {
+            Write-Error "Build output not found"
+            exit 1
+          }
+          Get-Content build_output.txt
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-output
+          path: build_output.txt
+
